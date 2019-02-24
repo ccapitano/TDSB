@@ -1,0 +1,78 @@
+What's the most expensive listing? 
+SELECT id, name, price
+FROM sfo_listings
+ORDER BY price DESC;
+ID: 24650875 with price of $10,000
+What else can you tell me about the listing?
+a. the listing has 4 reviews
+WITH
+	p_filter AS (
+		SELECT id, name, price
+		FROM sfo_listings
+		ORDER BY price DESC
+		LIMIT 1)
+SELECT sfo_reviews.listing_id,
+		count(sfo_reviews.review_date)
+FROM sfo_reviews
+JOIN p_filter
+ON sfo_reviews.listing_id = p_filter.id
+GROUP BY sfo_reviews.listing_id
+b. the listing had 28 taken nights in 2018 and 337 free nights
+WITH
+	p_filter AS (
+		SELECT id, name, price
+		FROM sfo_listings
+		ORDER BY price DESC
+		LIMIT 1)
+SELECT sfo_calendar.available, count(sfo_calendar.calender_date)
+FROM sfo_calendar
+JOIN p_filter
+ON sfo_calendar.listing_id = p_filter.id
+GROUP BY sfo_calendar.available
+;
+c. the taken nights were in the latter part of the year.
+WITH
+	p_filter AS (
+		SELECT id, name, price
+		FROM sfo_listings
+		ORDER BY price DESC
+		LIMIT 1)
+SELECT *
+FROM sfo_calendar
+JOIN p_filter
+ON sfo_calendar.listing_id = p_filter.id
+WHERE sfo_calendar.available = 't'
+ORDER BY sfo_calendar.calender_date
+;
+d. It's in the Western neighborhood, and it's most recent review was from May even though the taken nights are in September - December.
+WITH
+	p_filter AS (
+		SELECT id, name, price
+		FROM sfo_listings
+		ORDER BY price DESC
+		LIMIT 1)
+SELECT *
+FROM sfo_listings
+JOIN p_filter
+ON sfo_listings.id = p_filter.id
+;
+
+What neighborhoods seem to be the most popular?
+The mission neighborhood is most popular.
+WITH
+	n_filter AS (
+		SELECT listing_id, count(available) avail
+		FROM sfo_calendar
+		WHERE available = 't'
+		GROUP BY listing_id)
+SELECT sfo_listings.neighbourhood, sum(n_filter.avail)
+FROM sfo_listings
+JOIN n_filter
+ON sfo_listings.id = n_filter.listing_id
+GROUP BY sfo_listings.neighbourhood
+ORDER BY sum(n_filter.avail) DESC;
+
+What time of year is the cheapest time to go to San Francisco? 
+de
+What about the busiest?
+
